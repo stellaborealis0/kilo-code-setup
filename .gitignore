@@ -1,0 +1,16 @@
+# Backup file with real API keys (local only)
+.env.kilo.secrets.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Logs
+*.log
