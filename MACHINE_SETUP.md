@@ -54,6 +54,12 @@ launchctl load ~/Library/LaunchAgents/com.gerardo.kilo.env-loader.plist
 systemctl --user status kilo-env.service
 
 # Expected: Active: active (exited)
+
+# Verify wrapper script exists
+ls -la ~/.local/bin/code-with-env
+
+# Verify desktop file exists
+ls -la ~/.local/share/applications/code.desktop
 ```
 
 ### Manual Setup (if needed)
@@ -66,7 +72,27 @@ systemctl --user restart kilo-env.service
 
 # Verify env vars
 systemctl --user show-environment | grep -E "REQUESTY_API_KEY|NVIDIA_API_KEY|TYPESAFE_API_KEY"
+
+# Ensure wrapper is executable
+chmod +x ~/.local/bin/code-with-env
 ```
+
+### Important: Linux VS Code Launch
+
+On Linux, VS Code must be launched via the wrapper script to have access to API keys:
+
+```bash
+# From terminal (works)
+~/.local/bin/code-with-env
+
+# From desktop (works - uses wrapper via .desktop file)
+# Click VS Code icon in application menu
+
+# Direct launch (DOES NOT WORK - no API keys)
+/usr/share/code/code
+```
+
+The wrapper script (`~/.local/bin/code-with-env`) sources `~/.env.kilo.secrets` before launching VS Code, ensuring the Kilo Code extension has access to all API keys.
 
 ---
 

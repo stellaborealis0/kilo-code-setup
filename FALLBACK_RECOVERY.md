@@ -25,6 +25,7 @@ This document provides step-by-step recovery procedures for common issues with t
 - Kilo Code shows "API key not found" errors
 - Models fail to load
 - `{env:VAR}` placeholders not resolved
+- **Linux only**: Providers not showing in Kilo Code UI
 
 ### Diagnosis
 
@@ -38,7 +39,14 @@ launchctl getenv NVIDIA_API_KEY
 ```bash
 systemctl --user show-environment | grep NVIDIA_API_KEY
 # Should show NVIDIA_API_KEY=value
+
+# Check if VS Code process has env vars
+cat /proc/$(pgrep -f "/usr/share/code/code" | head -1)/environ | tr '\0' '\n' | grep NVIDIA_API_KEY
 ```
+
+### Root Cause (Linux)
+
+On Linux, GUI apps launched via `.desktop` files inherit environment from the session manager (GNOME/KDE), **not** from systemd user environment. The `kilo-env.service` imports vars into systemd, but VS Code doesn't see them.
 
 ### Recovery Steps
 
@@ -59,7 +67,15 @@ systemctl --user show-environment | grep NVIDIA_API_KEY
    systemctl --user restart kilo-env.service
    ```
 
-3. **Verify env vars are loaded**:
+3. **Linux-specific: Use wrapper script**
+
+   The fix is already deployed via chezmoi:
+   - Wrapper: `~/.local/bin/code-with-env` (sources secrets before launching)
+   - Desktop file: `~/.local/share/applications/code.desktop` (uses wrapper)
+
+   **Launch VS Code from desktop environment** (not SSH). The wrapper ensures API keys are loaded.
+
+4. **Verify env vars are loaded**:
    ```bash
    # macOS
    launchctl print gui/$(id -u) | grep NVIDIA_API_KEY
@@ -68,7 +84,7 @@ systemctl --user show-environment | grep NVIDIA_API_KEY
    systemctl --user show-environment | grep NVIDIA_API_KEY
    ```
 
-4. **Restart VS Code again** after reloading
+5. **Restart VS Code again** after reloading
 
 ---
 

@@ -86,6 +86,20 @@ Environment persistence:
 VS Code / Kilo Code reads {env:VAR} and resolves to actual keys
 ```
 
+### Linux-Specific: VS Code Wrapper
+
+On Linux, GUI apps launched from the desktop don't inherit systemd user environment. A wrapper script ensures API keys are available:
+
+```
+~/.local/bin/code-with-env (wrapper script)
+         ↓
+Sources ~/.env.kilo.secrets
+         ↓
+Launches /usr/share/code/code with env vars
+         ↓
+~/.local/share/applications/code.desktop (uses wrapper)
+```
+
 ## Troubleshooting
 
 See [FALLBACK_RECOVERY.md](FALLBACK_RECOVERY.md) for detailed recovery procedures.
